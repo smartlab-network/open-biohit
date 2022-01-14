@@ -1,5 +1,9 @@
-from InstrumentLib import InstrumentCls
+from biohit_pipettor.pipettor import Pipettor
 
-instrument = InstrumentCls()
-instrument.Control.Initialize()
-instrument.MoveXY(30., 30.)
+
+def run():
+    with Pipettor() as inst:
+        print(inst.is_connected)
+
+
+run()
