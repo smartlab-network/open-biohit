@@ -1,8 +1,2 @@
 __pycache__/
-CommunicationError/
-CommunicationLog/
-ControlError/
-ControlLog/
-IntrumentError/
-IntrumentLog/
 docs/_build
