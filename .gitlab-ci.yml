@@ -12,9 +12,6 @@ pages:
     - master
   before_script:
     - apt update
-    - apt install -y python3
-    - python3 --version
-    - python --version
     - apt list | grep -P '^python3\.[0-9]
     - apt-get install python3.9 python3-pip
   script:
