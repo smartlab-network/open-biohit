@@ -1,4 +1,4 @@
-from typing import Callable, Literal, Tuple
+from typing import Callable, Literal, Tuple, overload
 
 from biohit_pipettor.clr_wrapping.instrument import InstrumentCls
 from biohit_pipettor.errors import CommandFailed, CommandNotAccepted, NotConnected
@@ -28,62 +28,62 @@ class Pipettor:
     @property
     def aspirate_speed(self) -> PistonSpeed:
         """The aspirate speed (1 to 6)"""
-        return self.__instrument.Control.PollSpeed("P", inwards=True)
+        return self.__poll_speed("P", inwards=True)
 
     @aspirate_speed.setter
     def aspirate_speed(self, aspirate_speed: PistonSpeed) -> None:
-        self.__instrument.SetAspirateSpeed(aspirate_speed)
+        self.__run(lambda: self.__instrument.SetAspirateSpeed(aspirate_speed))
 
     @property
     def dispense_speed(self) -> PistonSpeed:
         """The dispense speed (1 to 6)"""
-        return self.__instrument.Control.PollSpeed("P", inwards=False)
+        return self.__poll_speed("P", inwards=False)
 
     @dispense_speed.setter
     def dispense_speed(self, dispense_speed: PistonSpeed) -> None:
-        self.__instrument.SetDispenseSpeed(dispense_speed)
+        self.__run(lambda: self.__instrument.SetDispenseSpeed(dispense_speed))
 
     @property
     def x_speed(self) -> MovementSpeed:
         """The X speed (1 to 9)"""
-        return self.__instrument.Control.PollSpeed("X", False)
+        return self.__poll_speed("X", False)
 
     @x_speed.setter
     def x_speed(self, x_speed: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]):
-        self.__instrument.SetActuatorSpeed("X", x_speed)
+        self.__run(lambda: self.__instrument.SetActuatorSpeed("X", x_speed))
 
     @property
     def y_speed(self) -> MovementSpeed:
         """The Y speed (1 to 9)"""
-        return self.__instrument.Control.PollSpeed("Y", False)
+        return self.__poll_speed("Y", False)
 
     @y_speed.setter
     def y_speed(self, y_speed: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]):
-        self.__instrument.SetActuatorSpeed("Y", y_speed)
+        self.__run(lambda: self.__instrument.SetActuatorSpeed("Y", y_speed))
 
     @property
     def z_speed(self) -> MovementSpeed:
         """The Z speed (1 to 9)"""
-        return self.__instrument.Control.PollSpeed("Z", False)
+        return self.__poll_speed("Z", False)
 
     @z_speed.setter
     def z_speed(self, z_speed: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]):
-        self.__instrument.SetActuatorSpeed("Z", z_speed)
+        self.__run(lambda: self.__instrument.SetActuatorSpeed("Z", z_speed))
 
     @property
     def x_position(self) -> float:
         """The X position, in millimeters"""
-        return self.__instrument.PollPosition("X")
+        return self.__poll_position("X")
 
     @property
     def y_position(self) -> float:
         """The Y position, in millimeters"""
-        return self.__instrument.PollPosition("Y")
+        return self.__poll_position("Y")
 
     @property
     def z_position(self) -> float:
         """The Z position, in millimeters"""
-        return self.__instrument.PollPosition("Z")
+        return self.__poll_position("Z")
 
     @property
     def xy_position(self) -> Tuple[float, float]:
@@ -93,7 +93,7 @@ class Pipettor:
     @property
     def piston_position(self) -> float:
         """The piston position, in millimeters"""
-        return self.__instrument.PollPistonPosition()
+        return self.__poll_position("P")
 
     def initialize(self) -> None:
         """Initializes the instrument: reset errors, refresh slaves, initialize actuators"""
@@ -204,6 +204,43 @@ class Pipettor:
             raise NotConnected
         if not func():
             raise CommandFailed
+
+    def __poll_position(self, address: Literal["X", "Y", "Z", "P"]) -> float:
+        """
+        Poll the position of the given actuator.
+
+        :param address: The actuator address ("X", "Y", or "Z")
+        :return: The actuator position
+        :raises: NotConnected: If the device is not connected
+        """
+        position = self.__instrument.PollPosition(address)
+        if position < 0:
+            raise NotConnected
+        return position
+
+    @overload
+    def __poll_speed(self, address: Literal["P"], inwards: bool = False) -> Literal[1, 2, 3, 4, 5, 6]:
+        ...
+
+    @overload
+    def __poll_speed(
+        self, address: Literal["X", "Y", "Z"], inwards: bool = False
+    ) -> Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]:
+        ...
+
+    def __poll_speed(self, address, inwards=False):
+        """
+        Poll the speed of the given actuator in the given direction.
+
+        :param address: The actuator address ("X", "Y", "Z", or "P")
+        :param inwards: The actuator direction (only relevant for the piston)
+        :return: The requested speed
+        :raises: NotConnected
+        """
+        speed = self.__instrument.Control.PollSpeed(address, inwards)
+        if speed < 0:
+            raise NotConnected
+        return speed
 
     def __enter__(self):
         return self

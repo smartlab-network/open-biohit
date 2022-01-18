@@ -386,7 +386,7 @@ class InstrumentCls:
         """
         Aspirate the given volume.
 
-        :param fVol: Volume, in milliliters
+        :param fVol: Volume, in microliters
         :param wait: If True, this method returns after completion, else after the command was sent to the instrument
         :return: If wait was True: returning True if command was accepted.
             It wait was False: returning True if command was executed successfully.
@@ -395,7 +395,7 @@ class InstrumentCls:
         """
         Dispense the given volume.
 
-        :param fVol: Volume, in milliliters
+        :param fVol: Volume, in microliters
         :param wait: If True, this method returns after completion, else after the command was sent to the instrument
         :return: If wait was True: returning True if command was accepted.
             It wait was False: returning True if command was executed successfully.
@@ -455,18 +455,12 @@ class InstrumentCls:
 
         :return: True on success, False otherwise
         """
-    def PollPosition(self, address: MovementActuatorAddress) -> float:
+    def PollPosition(self, address: ActuatorAddress) -> float:
         """
         Poll the actuator position.
 
-        :param address: The actuator address: "X", "Y", or "Z"
-        :return: The actuator position, in millimeters
-        """
-    def PollPistonPosition(self) -> float:
-        """
-        Poll the piston position.
-
-        :return: The piston position, in millimeters
+        :param address: The actuator address: "X", "Y", "Z", or "P"
+        :return: The actuator position, in millimeters or microliters
         """
     def GetErrors(self) -> str:
         """

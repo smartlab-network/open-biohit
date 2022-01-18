@@ -1,6 +1,11 @@
 import sys
 from os.path import dirname, join
 
+if sys.version_info[:2] < (3, 8):
+    import importlib_metadata as metadata
+else:
+    from importlib import metadata
+
 firmware_path = join(dirname(__file__), "include")
 sys.path.append(firmware_path)
 
@@ -13,3 +18,9 @@ try:
     clr_instrumentcls = InstrumentCls
 finally:
     sys.path.remove(firmware_path)
+
+from .pipettor import Pipettor  # noqa: E402 cannot be imported earlier, depends on this file
+
+__version__ = metadata.version(__name__)
+
+__all__ = ["__version__", "Pipettor"]
