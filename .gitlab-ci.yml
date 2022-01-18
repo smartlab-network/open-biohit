@@ -12,7 +12,7 @@ pages:
     - master
   before_script:
     - apt update
-    - apt list | grep -P '^python3\.[0-9]
+    - apt list | grep -P '^python3\.[0-9]'
     - apt-get install python3.9 python3-pip
   script:
     - python -m pip install .[docs]
