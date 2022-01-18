@@ -1,19 +1,23 @@
+# important: install python 3.9 and mono-devel
+# https://www.mono-project.com/download/stable/#download-lin-debian
+image: python:3.9-buster
+
 codequality:
-  image: python:3.9
   stage: test
   script:
     - python -m pip install .[dev]
     - ./run-checks
 
 pages:
-  image: mono:slim
   stage: deploy
   only:
     - master
   before_script:
+    - apt install apt-transport-https dirmngr gnupg ca-certificates
+    - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    - echo "deb https://download.mono-project.com/repo/debian stable-buster main" > /etc/apt/sources.list.d/mono-official-stable.list
     - apt update
-    - apt list | grep -P '^python3\.[0-9]'
-    - apt-get install python3.9 python3-pip
+    - apt install mono-devel
   script:
     - python -m pip install .[docs]
     - make -C docs/ html
