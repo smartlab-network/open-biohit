@@ -1,15 +1,17 @@
-image: python:3.9
-
 codequality:
+  image: python:3.9
   stage: test
   script:
     - python -m pip install .[dev]
     - ./run-checks
 
 pages:
+  image: mono:slim
   stage: deploy
   only:
     - master
+  before_script:
+    - apt-get install python3.9 python3-pip
   script:
     - python -m pip install .[docs]
     - make -C docs/ html
