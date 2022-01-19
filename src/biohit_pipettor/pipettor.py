@@ -84,6 +84,11 @@ class Pipettor:
         return self.x_position, self.y_position
 
     @property
+    def xyz_position(self) -> Tuple[float, float, float]:
+        """The X, Y and Z position, in millimeters"""
+        return self.x_position, self.y_position, self.z_position
+
+    @property
     def piston_position(self) -> float:
         """The piston position, in millimeters"""
         return self.__poll_position("P")
@@ -112,6 +117,26 @@ class Pipettor:
             else waits until target position is reached.
         """
         self.__run_with_wait(lambda wait: self.__instrument.MoveXY(x, y, wait), wait)
+
+    def move_x(self, x: float, wait: bool = True) -> None:
+        """
+        Move to the given X position.
+
+        :param x: The target X position, in millimeters
+        :param wait: if False, returns after sending the command to the device,
+            else waits until target position is reached.
+        """
+        self.move_xy(x, self.y_position, wait)
+
+    def move_y(self, y: float, wait: bool = True) -> None:
+        """
+        Move to the given Y position.
+
+        :param y: The target Y position, in millimeters
+        :param wait: if False, returns after sending the command to the device,
+            else waits until target position is reached.
+        """
+        self.move_xy(self.x_position, y, wait)
 
     def move_to_surface(self, limit: float, distance_from_surface: float) -> None:
         """
