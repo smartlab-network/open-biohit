@@ -6,6 +6,15 @@ Welcome to the biohit-pipettor documentation!
 
 This module is an unofficial Python interface for out Biohit Roboline devices.
 
+Installation
+------------
+
+To install the package, execute ``pip install git+https://gitlab.gwdg.de/niklas.mertsch/biohit-pipettor-python``.
+You will be prompted to enter your credentials for `gitlab.gwdg.de <https://gitlab.gwdg.de>`_.
+
+Usage
+-----
+
 To control the pipetting robot, use the :py:class:`biohit_pipettor.Pipettor` class.
 
 The following exceptions can occur:
