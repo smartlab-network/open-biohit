@@ -101,7 +101,7 @@ class Pipettor:
         """
         Move to the given Z position.
 
-        :param z: The target Z position
+        :param z: The target Z position, in millimeters
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
@@ -111,8 +111,8 @@ class Pipettor:
         """
         Move to the given X and Y position.
 
-        :param x: The target X position
-        :param y: The target Y position
+        :param x: The target X position, in millimeters
+        :param y: The target Y position, in millimeters
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
