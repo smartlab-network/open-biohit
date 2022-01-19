@@ -1,4 +1,3 @@
-import os
 import sys
 from os.path import dirname, join
 
@@ -8,7 +7,6 @@ else:
     from importlib import metadata
 
 firmware_path = join(dirname(__file__), "include")
-print("BLABLA", firmware_path, os.listdir(firmware_path))
 sys.path.append(firmware_path)
 
 try:
