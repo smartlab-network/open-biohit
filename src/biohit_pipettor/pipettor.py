@@ -10,8 +10,18 @@ PistonSpeed = Literal[1, 2, 3, 4, 5, 6]
 class Pipettor:
     __instrument: InstrumentCls
 
-    def __init__(self):
+    def __init__(self, initialize: bool = True):
+        """
+        Interface to the Biohit Roboline pipettor
+
+        :param initialize: If True, the device will be initialized
+        """
         self.__instrument = InstrumentCls()
+        if not self.is_connected:
+            raise NotConnected
+
+        if initialize:
+            self.initialize()
 
     @property
     def is_connected(self) -> bool:
@@ -94,7 +104,16 @@ class Pipettor:
         return self.__poll_position("P")
 
     def initialize(self) -> None:
-        """Initializes the instrument: reset errors, refresh slaves, initialize actuators"""
+        """
+        Initializes the instrument:
+
+            - move to z=0
+            - move x=0, y=0
+            - drop tip, if present
+            - move piston to volume=0
+            - reset errors
+            - refresh slaves
+        """
         self.__run(self.__instrument.InitializeInstrument)
 
     def move_z(self, z: float, wait: bool = True) -> None:
@@ -105,7 +124,7 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        self.__run_with_wait(lambda wait: self.__instrument.MoveZ(z, wait), wait)
+        self.__run_with_wait(lambda wait_: self.__instrument.MoveZ(z, wait_), wait)
 
     def move_xy(self, x: float, y: float, wait: bool = True) -> None:
         """
@@ -116,7 +135,7 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        self.__run_with_wait(lambda wait: self.__instrument.MoveXY(x, y, wait), wait)
+        self.__run_with_wait(lambda wait_: self.__instrument.MoveXY(x, y, wait_), wait)
 
     def move_x(self, x: float, wait: bool = True) -> None:
         """
@@ -164,7 +183,7 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        self.__run_with_wait(lambda wait: self.__instrument.Aspirate(volume, wait), wait)
+        self.__run_with_wait(lambda wait_: self.__instrument.Aspirate(volume, wait_), wait)
 
     def dispense(self, volume: float, wait: bool = True) -> None:
         """
@@ -174,7 +193,7 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        self.__run_with_wait(lambda wait: self.__instrument.Dispense(volume, wait), wait)
+        self.__run_with_wait(lambda wait_: self.__instrument.Dispense(volume, wait_), wait)
 
     def dispense_all(self) -> None:
         """Dispense all liquid from the tip"""
