@@ -244,6 +244,12 @@ class ControlCls:
         :param inwards: Irrelevant
         :return: Speed, or -1
         """
+    def PollSensorReading(self) -> int:
+        """
+        Poll the oscillation frequency sensor
+
+        :return: Sensor reading (unscaled), or -1
+        """
     def RefreshSlaves(self) -> bool:
         """
         Checks communication with all actuators.

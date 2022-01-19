@@ -192,6 +192,14 @@ class Pipettor:
         """Eject the current tip"""
         self.__run(self.__instrument.EjectTip)
 
+    @property
+    def sensor_value(self) -> int:
+        """The raw value read by the oscillation frequency sensor. Value range 11400-60000 corresponds to 526-100 Hz."""
+        raw_value = self.__instrument.Control.PollSensorReading()
+        if raw_value < 0:
+            raise NotConnected
+        return raw_value
+
     def __run_with_wait(self, func: Callable[[bool], bool], wait: bool) -> None:
         """
         Run a InstrumentLib method with the wait parameter that returns True on success and False otherwise.
