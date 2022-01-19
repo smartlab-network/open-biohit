@@ -4,7 +4,7 @@ Welcome to the biohit-pipettor documentation!
 .. toctree::
    :maxdepth: 2
 
-This module is an unofficial Python interface for out Biohit Roboline devices.
+This module is an unofficial Python interface for our Biohit Roboline devices.
 
 Installation
 ------------
