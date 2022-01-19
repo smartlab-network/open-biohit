@@ -16,7 +16,6 @@ html_theme = "nature"
 html_static_path = ["_static"]
 static_dir = join(dirname(__file__), "_static")
 html_css_files = [relpath(p, static_dir) for p in glob(join(static_dir, "css", "*.css"))]
-html_js_files = [relpath(p, static_dir) for p in glob(join(static_dir, "js", "*.js"))]
 
 pygments_style = "sphinx"  #
 
