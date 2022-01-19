@@ -11,13 +11,6 @@ class Pipettor:
     __instrument: InstrumentCls
 
     def __init__(self):
-        """
-        Wraps the InstrumentLib .NET interface.
-
-        CAUTION: If you use the bare initializer like `instrument = Pipettor()` and an exception occurs related to the
-        instrument, the cleanup will fail and the program cannot close gracefully. Use it as a context manager instead:
-        `with Pipettor() as instrument: ...`.
-        """
         self.__instrument = InstrumentCls()
 
     @property
@@ -142,7 +135,7 @@ class Pipettor:
         """
         Aspirate the given volume
 
-        :param volume: Volume, in milliliters
+        :param volume: Volume, in microliters
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
@@ -152,7 +145,7 @@ class Pipettor:
         """
         Dispense the given volume
 
-        :param volume: Volume, in milliliters
+        :param volume: Volume, in microliters
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
