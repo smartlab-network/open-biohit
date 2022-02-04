@@ -10,7 +10,7 @@ Installation
 ------------
 
 First, download the repository as zip file `here <https://gitlab.gwdg.de/umg-pharma-lab-automation/biohit-pipettor-python/-/archive/master/biohit-pipettor-python-master.zip>`_.
-Then, execute ``pip install path\to\biohit-pipettor-python-master.zip``.
+Then, execute ``pip install biohit-pipettor-python-master.zip``.
 
 Usage
 -----
