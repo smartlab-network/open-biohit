@@ -70,6 +70,14 @@ class ControlCls:
         :param systemPath: Path for logging
         """
     @property
+    def PipetType(self) -> Literal[1, 2]:
+        """
+        The pipet type: 1=200 ul, 2=1000 ul
+        """
+    @PipetType.setter
+    def PipetType(self, pipet_type: Literal[1, 2]):
+        ...
+    @property
     def Comm(self) -> CommunicationCls:
         """
         The underlying CommunicationCls

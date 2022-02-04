@@ -6,24 +6,29 @@ from biohit_pipettor.errors import CommandFailed, CommandNotAccepted, NotConnect
 
 MovementSpeed = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
 PistonSpeed = Literal[1, 2, 3, 4, 5, 6]
+TipVolume = Literal[200, 1000]
 
 
 class Pipettor:
     __instrument: InstrumentCls
 
-    def __init__(self, initialize: bool = True):
+    def __init__(self, tip_volume: Literal[200, 1000], initialize: bool = True):
         """
         Interface to the Biohit Roboline pipettor
 
         :param initialize: If True, the device will be initialized
         """
         self.__instrument = InstrumentCls()
+
+        # wait until connection is established
         for _ in range(20):
             time.sleep(0.1)
             if self.is_connected:
                 break
         else:
             raise NotConnected
+
+        self.tip_volume = tip_volume
 
         if initialize:
             self.initialize()
@@ -32,6 +37,23 @@ class Pipettor:
     def is_connected(self) -> bool:
         """True if the device is connected, False otherwise"""
         return self.__instrument.IsConnected() != 0
+
+    @property
+    def tip_volume(self) -> TipVolume:
+        """The tip volume (200 or 1000 uL, can be set)"""
+        pipet_type = self.__instrument.Control.PipetType
+        if pipet_type == 1:
+            return 200
+        return 1000
+
+    @tip_volume.setter
+    def tip_volume(self, volume: TipVolume) -> None:
+        if volume == 200:
+            self.__instrument.Control.PipetType = 1
+        elif volume == 1000:
+            self.__instrument.Control.PipetType = 2
+        else:
+            raise ValueError("Tip volume must be 200 or 1000 uL")
 
     @property
     def aspirate_speed(self) -> PistonSpeed:
