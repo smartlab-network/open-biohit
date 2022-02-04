@@ -1,3 +1,4 @@
+import time
 from typing import Callable, Literal, Tuple, overload
 
 from biohit_pipettor.clr_wrapping.instrument import InstrumentCls
@@ -17,7 +18,12 @@ class Pipettor:
         :param initialize: If True, the device will be initialized
         """
         self.__instrument = InstrumentCls()
-        if not self.is_connected:
+        for _ in range(20):
+            time.sleep(0.1)
+            print("slept")
+            if self.is_connected:
+                break
+        else:
             raise NotConnected
 
         if initialize:
