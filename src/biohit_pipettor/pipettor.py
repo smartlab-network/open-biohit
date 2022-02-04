@@ -20,7 +20,6 @@ class Pipettor:
         self.__instrument = InstrumentCls()
         for _ in range(20):
             time.sleep(0.1)
-            print("slept")
             if self.is_connected:
                 break
         else:
