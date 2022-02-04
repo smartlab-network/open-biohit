@@ -9,8 +9,8 @@ This module is an unofficial Python interface for our Biohit Roboline devices.
 Installation
 ------------
 
-To install the package, execute ``pip install git+https://gitlab.gwdg.de/niklas.mertsch/biohit-pipettor-python``.
-You will be prompted to enter your credentials for `gitlab.gwdg.de <https://gitlab.gwdg.de>`_.
+First, download the repository as zip file `here <https://gitlab.gwdg.de/umg-pharma-lab-automation/biohit-pipettor-python/-/archive/master/biohit-pipettor-python-master.zip>`_.
+Then, execute ``pip install path\to\biohit-pipettor-python-master.zip``.
 
 Usage
 -----
