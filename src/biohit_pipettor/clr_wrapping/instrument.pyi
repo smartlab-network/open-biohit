@@ -75,8 +75,7 @@ class ControlCls:
         The pipet type: 1=200 ul, 2=1000 ul
         """
     @PipetType.setter
-    def PipetType(self, pipet_type: Literal[1, 2]):
-        ...
+    def PipetType(self, pipet_type: Literal[1, 2]): ...
     @property
     def Comm(self) -> CommunicationCls:
         """
