@@ -216,6 +216,11 @@ class Pipettor:
         """Eject the current tip"""
         self.__run(self.__instrument.EjectTip)
 
+    def wait_until_stopped(self) -> None:
+        """Block the thread until all motors stopped (X, Y, Z, Piston)"""
+        self.__run(self.__instrument.Control.WaitArmToStop)
+        self.__run(self.__instrument.Control.WaitPistonToStop)
+
     @property
     def sensor_value(self) -> int:
         """The raw value read by the oscillation frequency sensor. Value range 11400-60000 corresponds to 526-100 Hz."""
