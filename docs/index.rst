@@ -33,7 +33,7 @@ It is strongly recommended to use the Pipettor class as a `context manager <http
 
     from biohit_pipettor import Pipettor
 
-    with Pipettor(tip_volume=200, initialize=True) as p:
+    with Pipettor(tip_volume=200, multichannel=False, initialize=True) as p:
         p.move_xy(10, 10)
         p.pick_tip(70)
         p.move_xy(25, 160)

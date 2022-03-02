@@ -8,3 +8,7 @@ class CommandFailed(Exception):
 
 class NotConnected(Exception):
     pass
+
+
+class OperationNotSupported(Exception):
+    pass

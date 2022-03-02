@@ -2,7 +2,7 @@ import time
 from typing import Callable, Literal, Tuple, overload
 
 from biohit_pipettor.clr_wrapping.instrument import InstrumentCls
-from biohit_pipettor.errors import CommandFailed, CommandNotAccepted, NotConnected
+from biohit_pipettor.errors import CommandFailed, CommandNotAccepted, NotConnected, OperationNotSupported
 
 MovementSpeed = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
 PistonSpeed = Literal[1, 2, 3, 4, 5, 6]
@@ -11,14 +11,18 @@ TipVolume = Literal[200, 1000]
 
 class Pipettor:
     __instrument: InstrumentCls
+    __multichannel: bool
 
-    def __init__(self, tip_volume: Literal[200, 1000], initialize: bool = True):
+    def __init__(self, tip_volume: Literal[200, 1000], *, multichannel: bool, initialize: bool = True):
         """
         Interface to the Biohit Roboline pipettor
 
+        :param tip_volume: The tip volume (must be 1000 if multichannel is True)
+        :param multichannel: If True, it is assumed the device uses a multichannel pipet
         :param initialize: If True, the device will be initialized
         """
         self.__instrument = InstrumentCls()
+        self.__multichannel = multichannel
 
         # wait until connection is established
         for _ in range(20):
@@ -32,6 +36,10 @@ class Pipettor:
 
         if initialize:
             self.initialize()
+
+    @property
+    def is_multichannel(self) -> bool:
+        return self.__multichannel
 
     @property
     def is_connected(self) -> bool:
@@ -49,6 +57,8 @@ class Pipettor:
     @tip_volume.setter
     def tip_volume(self, volume: TipVolume) -> None:
         if volume == 200:
+            if self.is_multichannel:
+                raise OperationNotSupported("Multi-channel pipet can only be used with 1000 uL tips")
             self.__instrument.Control.PipetType = 1
         elif volume == 1000:
             self.__instrument.Control.PipetType = 2
@@ -189,9 +199,15 @@ class Pipettor:
         Move Z in direction of `limit`, until either a surface was detected, or the `limit` was reached.
         If moving upwards, stops below the surface, else above it.
 
+        Note: This is only possible with single-channel pipets that have a tip sensor.
+
         :param limit: Direction and target position if no surface was detected
         :param distance_from_surface: Target distance from detected surface
         """
+        if self.is_multichannel:
+            raise OperationNotSupported(
+                "Command 'MoveToSurface' requires a tip sensor, which is only available for single-channel pipets"
+            )
         self.__run(lambda: self.__instrument.MoveToSurface(limit, distance_from_surface))
 
     def move_piston(self, position: int) -> None:
@@ -210,7 +226,10 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        self.__run_with_wait(lambda wait_: self.__instrument.Aspirate(volume, wait_), wait)
+        if self.is_multichannel:
+            self.__run_with_wait(lambda wait_: self.__instrument.Control.Aspirate(volume / 5, True, wait_), wait)
+        else:
+            self.__run_with_wait(lambda wait_: self.__instrument.Aspirate(volume, wait_), wait)
 
     def dispense(self, volume: float, wait: bool = True) -> None:
         """
@@ -220,7 +239,10 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        self.__run_with_wait(lambda wait_: self.__instrument.Dispense(volume, wait_), wait)
+        if self.is_multichannel:
+            self.__run_with_wait(lambda wait_: self.__instrument.Control.Dispense(volume / 5, True, wait_), wait)
+        else:
+            self.__run_with_wait(lambda wait_: self.__instrument.Dispense(volume, wait_), wait)
 
     def dispense_all(self) -> None:
         """Dispense all liquid from the tip"""
