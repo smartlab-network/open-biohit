@@ -17,17 +17,14 @@ Usage
 
 To control the pipetting robot, use the :py:class:`biohit_pipettor.Pipettor` class.
 
-The following exceptions can occur:
+Details about encountered errors are currently not provided.
+If you encounter errors and would like to receive more details, please let the maintainer know.
 
-    - :py:class:`biohit_pipettor.errors.NotConnected`: The device is not connected
-    - :py:class:`biohit_pipettor.errors.CommandFailed`: The command failed to execute
-
-Details about the errors are currently not provided. If you encounter errors and would like to receive more details, please let the maintainer know.
-
-All distance values are in millimeters, volumes are in microliters.
+All distance values are given or expected in millimeters, volumes are in microliters.
 Exception: :py:func:`biohit_pipettor.Pipettor.move_piston` takes the piston position in steps of the internal step motor.
 
 It is strongly recommended to use the Pipettor class as a `context manager <https://book.pythontips.com/en/latest/context_managers.html#context-managers>`_:
+Otherwise, background threads might not be properly stopped when errors occur, preventing the program from terminating.
 
 .. code-block::
 
