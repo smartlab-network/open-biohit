@@ -288,8 +288,8 @@ class Pipettor:
         if func(wait):
             return
         if wait:
-            raise CommandNotAccepted
-        raise CommandFailed
+            raise CommandFailed
+        raise CommandNotAccepted
 
     def __run(self, func: Callable[[], bool]) -> None:
         """
