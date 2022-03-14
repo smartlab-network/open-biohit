@@ -218,6 +218,15 @@ class Pipettor:
         """
         self.__run(lambda: self.__instrument.MovePistonToPosition(position))
 
+    @property
+    def __ul_to_steps(self) -> float:
+        if self.is_multichannel:  # multi-channel can only be 1000 uL
+            return 0.2
+        elif self.tip_volume == 200:
+            return 2
+        else:  # single-channel, 1000 uL
+            return 0.4
+
     def aspirate(self, volume: float, wait: bool = True) -> None:
         """
         Aspirate the given volume
@@ -226,10 +235,9 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        if self.is_multichannel:
-            self.__run_with_wait(lambda wait_: self.__instrument.Control.Aspirate(volume / 5, True, wait_), wait)
-        else:
-            self.__run_with_wait(lambda wait_: self.__instrument.Aspirate(volume, wait_), wait)
+        self.__run_with_wait(
+            lambda wait_: self.__instrument.Control.Aspirate(volume * self.__ul_to_steps, True, wait_), wait
+        )
 
     def dispense(self, volume: float, wait: bool = True) -> None:
         """
@@ -239,10 +247,9 @@ class Pipettor:
         :param wait: if False, returns after sending the command to the device,
             else waits until target position is reached.
         """
-        if self.is_multichannel:
-            self.__run_with_wait(lambda wait_: self.__instrument.Control.Dispense(volume / 5, True, wait_), wait)
-        else:
-            self.__run_with_wait(lambda wait_: self.__instrument.Dispense(volume, wait_), wait)
+        self.__run_with_wait(
+            lambda wait_: self.__instrument.Control.Dispense(volume * self.__ul_to_steps, True, wait_), wait
+        )
 
     def dispense_all(self) -> None:
         """Dispense all liquid from the tip"""
