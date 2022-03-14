@@ -5,9 +5,3 @@ set -ex
 # reformat code
 python -m isort .
 python -m black .
-
-# check for flaws
-python -m isort --check-only .
-python -m black --check .
-python -m pflake8 .
-python -m mypy .

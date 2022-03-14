@@ -1,15 +1,12 @@
 import time
 from typing import Callable, Literal, Tuple, overload
 
+from biohit_pipettor.abstract_pipettor import AbstractPipettor, MovementSpeed, PistonSpeed, TipVolume
 from biohit_pipettor.clr_wrapping.instrument import InstrumentCls
 from biohit_pipettor.errors import CommandFailed, CommandNotAccepted, NotConnected, OperationNotSupported
 
-MovementSpeed = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
-PistonSpeed = Literal[1, 2, 3, 4, 5, 6]
-TipVolume = Literal[200, 1000]
 
-
-class Pipettor:
+class Pipettor(AbstractPipettor):
     __instrument: InstrumentCls
     __multichannel: bool
 
@@ -21,8 +18,8 @@ class Pipettor:
         :param multichannel: If True, it is assumed the device uses a multichannel pipet
         :param initialize: If True, the device will be initialized
         """
+        super().__init__(tip_volume=tip_volume, multichannel=multichannel, initialize=initialize)
         self.__instrument = InstrumentCls()
-        self.__multichannel = multichannel
 
         # wait until connection is established
         for _ in range(20):
@@ -36,10 +33,6 @@ class Pipettor:
 
         if initialize:
             self.initialize()
-
-    @property
-    def is_multichannel(self) -> bool:
-        return self.__multichannel
 
     @property
     def is_connected(self) -> bool:
@@ -135,11 +128,6 @@ class Pipettor:
         """The X, Y and Z position, in millimeters"""
         return self.x_position, self.y_position, self.z_position
 
-    @property
-    def piston_position(self) -> float:
-        """The piston position, in millimeters"""
-        return self.__poll_position("P")
-
     def initialize(self) -> None:
         """
         Initializes the instrument:
@@ -209,14 +197,6 @@ class Pipettor:
                 "Command 'MoveToSurface' requires a tip sensor, which is only available for single-channel pipets"
             )
         self.__run(lambda: self.__instrument.MoveToSurface(limit, distance_from_surface))
-
-    def move_piston(self, position: int) -> None:
-        """
-        Move piston to given position
-
-        :param position: Target piston position, in steps
-        """
-        self.__run(lambda: self.__instrument.MovePistonToPosition(position))
 
     @property
     def __ul_to_steps(self) -> float:

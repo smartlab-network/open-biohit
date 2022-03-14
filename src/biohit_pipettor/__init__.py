@@ -6,6 +6,9 @@ if sys.version_info[:2] < (3, 8):
 else:
     from importlib import metadata
 
+from .abstract_pipettor import AbstractPipettor
+from .pipettor_simulator import PipettorSimulator
+
 firmware_path = join(dirname(__file__), "include")
 sys.path.append(firmware_path)
 
@@ -23,4 +26,4 @@ from .pipettor import Pipettor  # noqa: E402 cannot be imported earlier, depends
 
 __version__ = metadata.version(__name__)
 
-__all__ = ["__version__", "Pipettor"]
+__all__ = ["__version__", "Pipettor", "AbstractPipettor", "PipettorSimulator"]
