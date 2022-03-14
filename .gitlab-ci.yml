@@ -2,7 +2,15 @@
 # https://www.mono-project.com/download/stable/#download-lin-debian
 image: python:3.9-buster
 
-codequality:
+before_script:
+  - apt update
+  - apt install -y apt-transport-https dirmngr gnupg ca-certificates
+  - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+  - echo "deb https://download.mono-project.com/repo/debian stable-buster main" > /etc/apt/sources.list.d/mono-official-stable.list
+  - apt update
+  - apt install -y mono-devel
+
+test:
   stage: test
   script:
     - python -m pip install .[dev]
@@ -12,13 +20,6 @@ pages:
   stage: deploy
   only:
     - master
-  before_script:
-    - apt update
-    - apt install -y apt-transport-https dirmngr gnupg ca-certificates
-    - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-    - echo "deb https://download.mono-project.com/repo/debian stable-buster main" > /etc/apt/sources.list.d/mono-official-stable.list
-    - apt update
-    - apt install -y mono-devel
   script:
     - python -m pip install .[docs]
     - make -C docs/ html
