@@ -4,7 +4,16 @@ import math
 import warnings
 from typing import Literal
 
+import matplotlib.pyplot as plt
+from matplotlib import cm, colors
+from matplotlib.markers import CARETDOWNBASE, CARETUPBASE
+
 from biohit_pipettor.abstract_pipettor import AbstractPipettor, MovementSpeed, PistonSpeed, TipVolume
+
+TIP_PLOT_COLOR = "blue"
+VOLUME_PLOT_COLOR = "red"
+Z_MAX = 150
+Z_CMAP = "plasma"
 
 
 class PipettorSimulator:
@@ -43,6 +52,24 @@ class _PipettorSimulator(AbstractPipettor):
         self.__z_position: float = 0
         self._has_tip: bool = False
         self._volume: float = 0
+
+        self.fig, self.ax = plt.subplots()
+        self.ax.invert_xaxis()
+        self.ax.invert_yaxis()
+        self.ax.set_aspect("equal")
+        self.fig.colorbar(cm.ScalarMappable(colors.Normalize(0, Z_MAX), cmap=Z_CMAP))
+        self.fig.legend(
+            handles=[
+                plt.Line2D([0], [0], linewidth=0, color=VOLUME_PLOT_COLOR, marker=CARETUPBASE),
+                plt.Line2D([0], [0], linewidth=0, color=VOLUME_PLOT_COLOR, marker=CARETDOWNBASE),
+                plt.Line2D([0], [0], linewidth=0, color=TIP_PLOT_COLOR, marker=CARETUPBASE),
+                plt.Line2D([0], [0], linewidth=0, color=TIP_PLOT_COLOR, marker=CARETDOWNBASE),
+            ],
+            labels=["aspirate", "dispense", "pick tip", "eject tip"],
+            ncol=4,
+            loc="lower center",
+            bbox_to_anchor=(0.4, 0),
+        )
 
     @property
     def is_multichannel(self) -> bool:
@@ -110,7 +137,7 @@ class _PipettorSimulator(AbstractPipettor):
 
     def initialize(self) -> None:
         if self._has_tip:
-            self._has_tip = False
+            self.eject_tip()
             raise RuntimeError("Eject tip before initializing (would drop the tip)")
         self._volume = 0
         self.move_y(0)
@@ -121,6 +148,15 @@ class _PipettorSimulator(AbstractPipettor):
         self.__z_position = z
 
     def move_xy(self, x: float, y: float, wait: bool = True) -> None:
+        self.ax.arrow(
+            x=self.x_position,
+            y=self.y_position,
+            dx=x - self.x_position,
+            dy=y - self.y_position,
+            head_width=1,
+            length_includes_head=True,
+            color=cm.get_cmap(Z_CMAP, Z_MAX)(self.z_position),
+        )
         self.__x_position = x
         self.__y_position = y
 
@@ -130,7 +166,7 @@ class _PipettorSimulator(AbstractPipettor):
         if not self._has_tip:
             raise RuntimeError("move_to_surface requires a tip")
         warnings.warn("move_to_surface only works with a working tip sensor. Make sure your device has one.")
-        self.__z_position = limit
+        self.move_z(limit)
 
     def aspirate(self, volume: float, wait: bool = True) -> None:
         if not self._has_tip:
@@ -140,6 +176,14 @@ class _PipettorSimulator(AbstractPipettor):
                 f"Can't aspirate {volume} uL. Current volume: {self._volume} uL, max volume: {self.tip_volume} uL"
             )
         self._volume += volume
+
+        self.ax.plot(self.x_position, self.y_position, marker=CARETUPBASE, color=VOLUME_PLOT_COLOR)
+        self.ax.annotate(
+            text=self.__volume_to_str(volume),
+            xy=(self.x_position, self.y_position),
+            xytext=(1, 1),
+            textcoords="offset points",
+        )
 
     def dispense(self, volume: float, wait: bool = True) -> None:
         if not self._has_tip:
@@ -151,16 +195,25 @@ class _PipettorSimulator(AbstractPipettor):
         else:
             self._volume -= volume
 
+        self.ax.plot(self.x_position, self.y_position, marker=CARETDOWNBASE, color=VOLUME_PLOT_COLOR)
+        self.ax.annotate(
+            text=self.__volume_to_str(-volume),
+            xy=(self.x_position, self.y_position),
+            xytext=(1, -10),
+            textcoords="offset points",
+        )
+
     def dispense_all(self) -> None:
         if not self._has_tip:
             raise RuntimeError("dispense requires a tip")
-        self._volume = 0
+        self.dispense(self._volume)
 
     def pick_tip(self, limit: float) -> None:
         if self._has_tip:
             raise RuntimeError("Eject the tip first before picking a second tip")
         self._has_tip = True
-        self.__z_position = 0
+        self.move_z(0)
+        self.ax.plot(self.x_position, self.y_position, marker=CARETUPBASE, color=TIP_PLOT_COLOR)
 
     def eject_tip(self) -> None:
         if not self._has_tip:
@@ -168,6 +221,7 @@ class _PipettorSimulator(AbstractPipettor):
         if not math.isclose(self._volume, 0, abs_tol=0.001):
             warnings.warn(f"Ejecting non-empty tip ({self._volume} uL left)")
         self._has_tip = False
+        self.ax.plot(self.x_position, self.y_position, marker=CARETDOWNBASE, color=TIP_PLOT_COLOR)
 
     def wait_until_stopped(self) -> None:
         pass
@@ -176,3 +230,13 @@ class _PipettorSimulator(AbstractPipettor):
     def sensor_value(self) -> int:
         warnings.warn("Reading the tip sensor is not supported by the simulation. Returning 10_000.")
         return 10_000
+
+    def show(self) -> None:
+        self.fig.tight_layout(rect=[0, 0.1, 1, 1])
+        self.fig.show()
+
+    @staticmethod
+    def __volume_to_str(volume: float) -> str:
+        if isinstance(volume, int):
+            return f"{volume:+}"
+        return f"{volume:+.2f}"
