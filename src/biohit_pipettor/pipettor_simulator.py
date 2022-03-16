@@ -19,11 +19,16 @@ class PipettorSimulator:
         if self._simulator._has_tip:
             warnings.warn("Tip was not ejected")
 
+    def __getattr__(self, item):
+        raise RuntimeError(f"Must be used with a context manager: `with {self.__class__.__name__}(...) as ...:`")
+
 
 class _PipettorSimulator(AbstractPipettor):
     def __init__(self, tip_volume: Literal[200, 1000], *, multichannel: bool, initialize: bool = True) -> None:
         if not initialize:
             raise RuntimeError("Simulation requires initialize=True")
+        if tip_volume not in [200, 1000]:
+            raise RuntimeError("tip_volume must be 200 or 1000 (uL)")
         if multichannel and tip_volume != 1000:
             raise RuntimeError("Multi-channel pipette requires 1000 uL tips")
         self.__multichannel: bool = multichannel
@@ -125,6 +130,7 @@ class _PipettorSimulator(AbstractPipettor):
         if not self._has_tip:
             raise RuntimeError("move_to_surface requires a tip")
         warnings.warn("move_to_surface only works with a working tip sensor. Make sure your device has one.")
+        self.__z_position = limit
 
     def aspirate(self, volume: float, wait: bool = True) -> None:
         if not self._has_tip:

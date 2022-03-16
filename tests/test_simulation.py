@@ -4,7 +4,7 @@ from biohit_pipettor import PipettorSimulator
 
 
 def test_require_context_manager():
-    with pytest.raises(AttributeError):
+    with pytest.raises(RuntimeError):
         p = PipettorSimulator(200, multichannel=False, initialize=True)
         p.move_x(10)
 
