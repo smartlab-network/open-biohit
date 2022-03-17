@@ -15,13 +15,12 @@ Then, execute ``pip install biohit-pipettor-python-master.zip``.
 Usage
 -----
 
-To control the pipetting robot, use the :py:class:`biohit_pipettor.Pipettor` class.
+To control the pipetting robot, use the :py:class:`~biohit_pipettor.Pipettor` class.
 
 Details about encountered errors are currently not provided.
 If you encounter errors and would like to receive more details, please let the maintainer know.
 
 All distance values are given or expected in millimeters, volumes are in microliters.
-Exception: :py:func:`biohit_pipettor.Pipettor.move_piston` takes the piston position in steps of the internal step motor.
 
 It is strongly recommended to use the Pipettor class as a `context manager <https://book.pythontips.com/en/latest/context_managers.html#context-managers>`_:
 Otherwise, background threads might not be properly stopped when errors occur, preventing the program from terminating.
@@ -42,7 +41,11 @@ Otherwise, background threads might not be properly stopped when errors occur, p
 Simulation
 ----------
 
-You can use the class :py:class:`biohit_pipettor.PipettorSimulator` instead of :py:class:`biohit_pipettor.Pipettor` to check your pipetting routine for common errors.
+You can use the class :py:class:`~biohit_pipettor.pipettor_simulator._PipettorSimulator` instead of :py:class:`~biohit_pipettor.Pipettor`
+to check your pipetting routine for common errors, perform static type checks, and generate a plot representing your routine.
+
+Detected problems
+^^^^^^^^^^^^^^^^^
 
 It raises a :py:class:`RuntimeError` in the following situations:
 
@@ -68,8 +71,7 @@ It emits a :py:class:`UserWarning` in the following situations:
 - if ``move_to_surface()`` is executed (only works if the device has a working tip sensor)
 - if ``sensor_value`` is accessed (only works if the device has a working tip sensor)
 
-Examples
-^^^^^^^^
+Examples:
 
 .. code-block:: python
 
@@ -88,14 +90,64 @@ Examples
         p.aspirate(100)
 
 Static type checking
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 You can use `mypy <https://github.com/python/mypy>`_ to check your code for type errors:
 
 - Installation: ``pip install mypy``
 - Check: ``mypy path/to/your/pipetting-script.py``
 
-The Pipettor class
-------------------
+Plotting
+^^^^^^^^
+
+The :py:class:`PipettorSimulator <biohit_pipettor.pipettor_simulator._PipettorSimulator>` internally writes every action to a `matplotlib <https://matplotlib.org>`_ plot
+(:py:attr:`~biohit_pipettor.pipettor_simulator._PipettorSimulator.fig`, :py:attr:`~biohit_pipettor.pipettor_simulator._PipettorSimulator.ax`).
+You can interact with these attributes directly, or use the methods :py:func:`~biohit_pipettor.pipettor_simulator._PipettorSimulator.save_plot`
+or :py:func:`~biohit_pipettor.pipettor_simulator._PipettorSimulator.show_plot` to save/show the plot.
+
+Example:
+
+.. code-block:: python
+
+    from biohit_pipettor import PipettorSimulator
+
+    with PipettorSimulator(tip_volume=200, multichannel=False) as p:
+        p.move_xy(100, 50)
+        p.pick_tip(100)
+
+        p.move_xy(150, 100)
+        p.aspirate(200)
+
+        for column in range(12):  # 11 to 0
+            tip_x = column * 9 + 6
+            for row in range(8):  # 0 to 7
+                tip_y = row * 9 + 125
+
+                p.move_xy(tip_x, tip_y)
+                p.move_z(60)
+                p.dispense(2)
+
+        p.move_z(0)
+        p.move_xy(150, 150)
+        p.dispense_all()
+
+        p.move_xy(50, 50)
+        p.eject_tip()
+
+        p.show_plot()
+
+This generates this plot:
+
+.. image:: bla.svg
+
+
+The Pipettor classes
+--------------------
 
 .. autoclass:: biohit_pipettor.Pipettor
+    :show-inheritance:
+
+.. autoclass:: biohit_pipettor.pipettor_simulator._PipettorSimulator
+    :show-inheritance:
+
+.. autoclass:: biohit_pipettor.AbstractPipettor

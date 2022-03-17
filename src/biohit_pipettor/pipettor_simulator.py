@@ -33,6 +33,11 @@ class PipettorSimulator:
 
 
 class _PipettorSimulator(AbstractPipettor):
+    fig: plt.Figure
+    """matplotlib figure used for plotting"""
+    ax: plt.Axes
+    """matplotlib axes used for plotting"""
+
     def __init__(self, tip_volume: Literal[200, 1000], *, multichannel: bool, initialize: bool = True) -> None:
         if not initialize:
             raise RuntimeError("Simulation requires initialize=True")
@@ -53,7 +58,9 @@ class _PipettorSimulator(AbstractPipettor):
         self._has_tip: bool = False
         self._volume: float = 0
 
-        self.fig, self.ax = plt.subplots()
+        self.fig, self.ax = plt.subplots(figsize=(8.27, 5.85))
+        self.ax.set_xlim(0, 250)
+        self.ax.set_ylim(0, 200)
         self.ax.invert_xaxis()
         self.ax.invert_yaxis()
         self.ax.set_aspect("equal")
@@ -231,9 +238,14 @@ class _PipettorSimulator(AbstractPipettor):
         warnings.warn("Reading the tip sensor is not supported by the simulation. Returning 10_000.")
         return 10_000
 
-    def show(self) -> None:
+    def show_plot(self) -> None:
+        """Show the figure"""
         self.fig.tight_layout(rect=[0, 0.1, 1, 1])
         self.fig.show()
+
+    def save_plot(self, filename: str) -> None:
+        """Save the figure to the given file"""
+        self.fig.savefig(filename)
 
     @staticmethod
     def __volume_to_str(volume: float) -> str:

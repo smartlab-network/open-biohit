@@ -26,6 +26,7 @@ autodoc_default_options = {
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
 ]
 autodoc_member_order = "groupwise"
 intersphinx_mapping = {
