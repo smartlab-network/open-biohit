@@ -13,7 +13,7 @@ before_script:
 test:
   stage: test
   script:
-    - python -m pip install .[dev]
+    - python -m pip install .[dev,simulation]
     - ./run-checks
 
 pages:
@@ -21,7 +21,7 @@ pages:
   only:
     - master
   script:
-    - python -m pip install .[docs]
+    - python -m pip install .[docs,simulation]
     - make -C docs/ html
     - mv ./docs/_build/html ./public
   artifacts:
