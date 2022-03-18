@@ -14,6 +14,7 @@ TIP_PLOT_COLOR = "blue"
 VOLUME_PLOT_COLOR = "red"
 Z_MAX = 150
 Z_CMAP = "plasma"
+ANNOTATION_FONTSIZE = "xx-small"
 
 
 class PipettorSimulator:
@@ -190,6 +191,7 @@ class _PipettorSimulator(AbstractPipettor):
             xy=(self.x_position, self.y_position),
             xytext=(1, 1),
             textcoords="offset points",
+            fontsize=ANNOTATION_FONTSIZE,
         )
 
     def dispense(self, volume: float, wait: bool = True) -> None:
@@ -206,8 +208,9 @@ class _PipettorSimulator(AbstractPipettor):
         self.ax.annotate(
             text=self.__volume_to_str(-volume),
             xy=(self.x_position, self.y_position),
-            xytext=(1, -10),
+            xytext=(3, -5),
             textcoords="offset points",
+            fontsize=ANNOTATION_FONTSIZE,
         )
 
     def dispense_all(self) -> None:
