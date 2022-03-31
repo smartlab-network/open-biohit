@@ -59,6 +59,17 @@ class Pipettor(AbstractPipettor):
             raise ValueError("Tip volume must be 200 or 1000 uL")
 
     @property
+    def tip_pickup_force(self) -> int:
+        force = self.__instrument.Control.PollPickUpForce()
+        if force == -1:
+            raise CommandFailed
+        return force
+
+    @tip_pickup_force.setter
+    def tip_pickup_force(self, force: int) -> None:
+        self.__run(lambda: self.__instrument.SetPickUpForce(force))
+
+    @property
     def aspirate_speed(self) -> PistonSpeed:
         """The aspirate speed (1 to 6)"""
         return self.__poll_speed("P", inwards=True)

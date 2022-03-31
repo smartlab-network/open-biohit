@@ -37,6 +37,12 @@ class AbstractPipettor(ABC):
 
     @property
     @abstractmethod
+    def tip_pickup_force(self) -> int:
+        """The tip pickup force (8 to 26, can be set)"""
+        pass
+
+    @property
+    @abstractmethod
     def aspirate_speed(self) -> PistonSpeed:
         """The aspirate speed (1 to 6)"""
 

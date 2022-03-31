@@ -92,6 +92,14 @@ class _PipettorSimulator(AbstractPipettor):
         return self.__tip_volume
 
     @property
+    def tip_pickup_force(self) -> int:
+        return 10
+
+    @tip_pickup_force.setter
+    def tip_pickup_force(self, force: int) -> None:
+        return
+
+    @property
     def aspirate_speed(self) -> PistonSpeed:
         return self.__aspirate_speed
 
