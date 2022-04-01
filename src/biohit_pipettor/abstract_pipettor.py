@@ -7,7 +7,6 @@ TipVolume = Literal[200, 1000]
 
 
 class AbstractPipettor(ABC):
-    @abstractmethod
     def __init__(self, tip_volume: Literal[200, 1000], *, multichannel: bool, initialize: bool = True):
         """
         Interface to the Biohit Roboline pipettor
@@ -16,12 +15,12 @@ class AbstractPipettor(ABC):
         :param multichannel: If True, it is assumed the device uses a multichannel pipet
         :param initialize: If True, the device will be initialized
         """
+        self.__multichannel = multichannel
 
     @property
-    @abstractmethod
     def is_multichannel(self) -> bool:
         """True if the device uses a multi-channel pipette"""
-        pass
+        return self.__multichannel
 
     @property
     @abstractmethod

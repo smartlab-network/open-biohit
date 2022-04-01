@@ -8,7 +8,6 @@ from biohit_pipettor.errors import CommandFailed, CommandNotAccepted, NotConnect
 
 class Pipettor(AbstractPipettor):
     __instrument: InstrumentCls
-    __multichannel: bool
 
     def __init__(self, tip_volume: Literal[200, 1000], *, multichannel: bool, initialize: bool = True):
         """

@@ -40,13 +40,13 @@ class _PipettorSimulator(AbstractPipettor):
     """matplotlib axes used for plotting"""
 
     def __init__(self, tip_volume: Literal[200, 1000], *, multichannel: bool, initialize: bool = True) -> None:
+        super().__init__(tip_volume, multichannel=multichannel, initialize=initialize)
         if not initialize:
             raise RuntimeError("Simulation requires initialize=True")
         if tip_volume not in [200, 1000]:
             raise RuntimeError("tip_volume must be 200 or 1000 (uL)")
         if multichannel and tip_volume != 1000:
             raise RuntimeError("Multi-channel pipette requires 1000 uL tips")
-        self.__multichannel: bool = multichannel
         self.__tip_volume: TipVolume = tip_volume
         self.__aspirate_speed: PistonSpeed = 5
         self.__dispense_speed: PistonSpeed = 5
@@ -78,10 +78,6 @@ class _PipettorSimulator(AbstractPipettor):
             loc="lower center",
             bbox_to_anchor=(0.4, 0),
         )
-
-    @property
-    def is_multichannel(self) -> bool:
-        return self.__multichannel
 
     @property
     def is_connected(self) -> bool:
